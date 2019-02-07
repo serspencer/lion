@@ -60,7 +60,7 @@ async def command_garage_status(client, message):
     """Discover the status of garages on UCF campus."""
     command_match = re.match(COMMAND_PATTERN, message.content, re.IGNORECASE)
 
-    BOT_SPAM_CHANNEL = client.get_channel(542572840826699778)#load_bot_spam_channel_id()) #531864295970177046)
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))#542572840826699778) #531864295970177046)
 
     # If the given command doesn't match the necessary pattern, we've got a problem.
     if command_match is None:
