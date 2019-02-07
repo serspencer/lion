@@ -19,6 +19,7 @@ CLASS_PATTERN = re.compile(r"(?P<short>[a-z0-9_]+)_(?P<prof>[a-z]+)$")
 
 ALLOWED_CATEGORIES = ["CLASSES"]
 
+BOT_SPAM_FILE = "data/bot_spam_channel_id.txt"
 
 class Class:
     def __init__(self, name, channel):
@@ -37,6 +38,8 @@ class Class:
 async def command_list(client, message):
     """List the available classes"""
 
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    
     response = "**All classes:**\n```\n"
 
     # show class details
@@ -45,23 +48,28 @@ async def command_list(client, message):
         arrow = "-->" if class_.contains_member(message.author) else ""
         response += "{:4}{}\n".format(arrow, class_.name)
 
-    response += "```\nYour classes are highlighted with an arrow.\n" \
-        "You can manage your classes with `!{}` and `!{}`".format(REGISTER_COMMAND, UNREGISTER_COMMAND)
-    await message.channel.send(response)
+    response += "```\n{}, your classes are highlighted with an arrow.\n" \
+        "You can manage your classes with `!{}` and `!{}`".format(message.author.mention, REGISTER_COMMAND, UNREGISTER_COMMAND)
+    
+    await BOT_SPAM_CHANNEL.send(response)
+    await message.delete()
 
 
 async def command_register(client, message):
     """Give member access to requested class channels"""
 
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     # check command syntax
     command_match = re.match(REGISTER_COMMAND_FORMAT, message.content)
     if command_match is None:
-        response = "Incorrect command syntax. Try `!help`."
-        await message.channel.send(response)
+        response = "{}, that is the incorrect command syntax. Try `!help`.".format(message.author.mention)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
         return
 
     # get the requested classes
-    cfm = await get_classes_from_message(message)
+    cfm = await get_classes_from_message(client, message)
     if cfm is None:
         return
     classes = cfm[0]
@@ -77,26 +85,30 @@ async def command_register(client, message):
 
     # output the registered classes
     if not isAll:
-        response = "**Registered classes:**"
+        response = "{} **Registered classes:**".format(message.author.mention)
         for class_ in classes:
             response += "\n<#{}>".format(class_.channel.id)
     else:
-        response = "Registered all classes."
-    await message.channel.send(response)
+        response = "{}, you have registered all classes.".format(message.author.mention)
 
+    await BOT_SPAM_CHANNEL.send(response)
+    await message.delete()
 
 async def command_unregister(client, message):
     """Remove access to requested class channels"""
 
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    
     # check command syntax
     command_match = re.match(UNREGISTER_COMMAND_FORMAT, message.content)
     if command_match is None:
-        response = "Incorrect command syntax. Try `!help`."
-        await message.channel.send(response)
+        response = "{}, incorrect command syntax. Try `!help`.".format(message.author.mention)
+        await BOT_SPAM_CHANNEL.send(response)
+        await message.delete()
         return
 
     # get the requested classes
-    cfm = await get_classes_from_message(message)
+    cfm = await get_classes_from_message(client, message)
     if cfm is None:
         return
     classes = cfm[0]
@@ -110,12 +122,16 @@ async def command_unregister(client, message):
         await class_.channel.set_permissions(message.author, read_messages=False)
 
     # reply
-    response = "Unregistered from classes."
-    await message.channel.send(response)
+    response = "{}, you have unregistered from classes.".format(message.author.mention)
+    await BOT_SPAM_CHANNEL.send(response)
+    await message.delete()
 
 
-async def get_classes_from_message(message):
+async def get_classes_from_message(client, message):
     """Get classes user referenced in their message"""
+
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     possible_classes = await get_classes(message.guild)
     req_class_names = message.content.split()[1:]
 
@@ -135,9 +151,10 @@ async def get_classes_from_message(message):
                 if possible_class.short == req_class_name.strip():
                     classes.append(possible_class)
             if len(classes) == 0:
-                response = "`{}` is not an available class group. Try `!{}`." \
-                    .format(req_class_name, LIST_COMMAND)
-                await message.channel.send(response)
+                response = "{}, `{}` is not an available class group. Try `!{}`." \
+                    .format(message.author.mention, req_class_name, LIST_COMMAND)
+                await BOT_SPAM_CHANNEL.send(response)
+                await message.delete()
                 return
 
         # individual class
@@ -147,9 +164,10 @@ async def get_classes_from_message(message):
                     classes.append(possible_class)
                     break
             else:
-                response = "`{}` is not an available class. Try `!{}`." \
-                    .format(req_class_name, LIST_COMMAND)
-                await message.channel.send(response)
+                response = "{}, `{}` is not an available class. Try `!{}`." \
+                    .format(message.author.mention, req_class_name, LIST_COMMAND)
+                await BOT_SPAM_CHANNEL.send(response)
+                await message.delete()
                 return
     
     return (classes, False)
@@ -172,3 +190,8 @@ def get_categories(guild):
         if category.name.upper() in ALLOWED_CATEGORIES:
             categories.append(category)
     return categories
+
+def load_bot_spam_channel_id():
+    """Load the Discord API authentication token."""
+    with open(BOT_SPAM_FILE, "r") as bot_spam_file:
+        return bot_spam_file.read().strip()

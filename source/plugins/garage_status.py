@@ -23,6 +23,7 @@ URL = "http://secure.parking.ucf.edu/GarageCount/iframe.aspx"
 GARAGE_SINGLE_HEADER = "**Current saturation of Garage {0}:**"
 COMMAND_PATTERN = r"^!{0}( {1})?$".format(COMMAND, CHOICE_PATTERN)
 GARAGE_LIST_HEADER = "**Current garage saturation on UCF campus:**"
+BOT_SPAM_FILE = "data/bot_spam_channel_id.txt"
 
 class Garage:
     """Hold various information about a UCF campus garage."""
@@ -59,10 +60,16 @@ async def command_garage_status(client, message):
     """Discover the status of garages on UCF campus."""
     command_match = re.match(COMMAND_PATTERN, message.content, re.IGNORECASE)
 
+    BOT_SPAM_CHANNEL = client.get_channel(542572840826699778)#load_bot_spam_channel_id()) #531864295970177046)
+
     # If the given command doesn't match the necessary pattern, we've got a problem.
     if command_match is None:
-        response = "You've got the garage syntax wrong. Try `!help`."
-        await message.channel.send(response)
+        response = "{0.author.mention} you've got the garage syntax wrong. Try `!help`.".format(message)
+        
+        # OLD
+        # await message.channel.send(response)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
 
         return
 
@@ -78,14 +85,21 @@ async def command_garage_status(client, message):
             if re.match(garage.name, command_match.group("choice"), re.IGNORECASE):
                 response = respond_with_single_garage(garage)
                 break
+    
+    #  Ping the command issuer
+    await BOT_SPAM_CHANNEL.send("{0.author.mention} your garage status:".format(message))
+    # Old
+    # garage_message = await message.channel.send(response)
+    garage_message = await BOT_SPAM_CHANNEL.send(response)
 
-    garage_message = await message.channel.send(response)
 
     # A little Easter egg. ;)
     if random.random() < ODDS:
         for emoji in VEHICLE_EMOJIS:
             await garage_message.add_reaction(emoji)
-
+    
+    # Remove command from where it was issued
+    await message.delete()
 
 def respond_with_all_garages(garages):
     """Generate a response for all garages."""
@@ -147,3 +161,8 @@ def get_garages():
         garage.set_saturated_space(available_space)
 
     return garages
+
+def load_bot_spam_channel_id():
+    """Load the Discord API authentication token."""
+    with open(BOT_SPAM_FILE, "r") as bot_spam_file:
+        return bot_spam_file.read().strip()

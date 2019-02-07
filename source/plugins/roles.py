@@ -15,50 +15,72 @@ LIST_COMMAND_PATTERN = r"^!{0}$".format(LIST_COMMAND)
 ADD_COMMAND_PATTERN = r"^!{0}( \S+)+$".format(ADD_COMMAND)
 REMOVE_COMMAND_PATTERN = r"^!{0}( \S+)+$".format(REMOVE_COMMAND)
 PERMISSIONS_ERROR = "Insufficent permissions to handle one of your specified roles."
+BOT_SPAM_FILE = "data/bot_spam_channel_id.txt"
 
 async def command_addroles(client, message):
     """Give the member new roles."""
+
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     roles = await get_roles(client, message, ADD_COMMAND, ADD_COMMAND_PATTERN)
     if roles is None:
         return
 
     try:
         await message.author.add_roles(*roles)
-        response = "Added roles! Check them out with `!{0}`".format(LIST_COMMAND)
-        await message.channel.send(response)
+        response = "{0} Added roles! Check them out with `!{1}`".format(message.author.mention, LIST_COMMAND)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
     except discord.errors.Forbidden:
-        await message.channel.send(PERMISSIONS_ERROR)
+        user_mention = " {0}".format(message.author.mention)
+        perm_error = PERMISSIONS_ERROR + user_mention
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(perm_error)
 
 
 async def command_removeroles(client, message):
     """Remove roles from the member."""
+
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     roles = await get_roles(client, message, REMOVE_COMMAND, REMOVE_COMMAND_PATTERN)
     if roles is None:
         return
 
     try:
         await message.author.remove_roles(*roles)
-        response = "Removed roles. Confirm with `!{0}`".format(LIST_COMMAND)
-        await message.channel.send(response)
+        response = "{0} Removed roles. Confirm with `!{1}`".format(message.author.mention, LIST_COMMAND)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
     except discord.errors.Forbidden:
-        await message.channel.send(PERMISSIONS_ERROR)
+        user_mention = " {0}".format(message.author.mention)
+        perm_error = PERMISSIONS_ERROR + user_mention
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(perm_error)
 
 
 async def command_listroles(client, message):
     """List all roles available on the server."""
+
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     response = get_response(get_server(client), message.author)
 
-    await message.channel.send(response)
+    await message.delete()
+    await BOT_SPAM_CHANNEL.send(response)
 
 
 async def get_roles(client, message, command, command_pattern):
     """Get all available roles on the server."""
 
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     # First, confirm that the message matches the syntax.
     command_match = re.match(command_pattern, message.content)
     if command_match is None:
-        response = "You've got the {0} syntax wrong. Try `!help`.".format(command)
-        await message.channel.send(response)
+        response = "{0}, you've got the {1} syntax wrong. Try `!help`.".format(message.author.mention, command)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
 
         return None
 
@@ -75,8 +97,9 @@ async def get_roles(client, message, command, command_pattern):
                 roles.append(possible_role)
                 break
         else:
-            response = "`{0}` is not a role. Try `!{1}`.".format(name, LIST_COMMAND)
-            await message.channel.send(response)
+            response = "{0}, `{1}` is not a role. Try `!{2}`.".format(message.author.mention, name, LIST_COMMAND)
+            await message.delete()
+            await BOT_SPAM_CHANNEL.send(response)
 
             return None
 
@@ -99,6 +122,11 @@ def get_response(server, author):
             response += LACKS_ROLE_FORMAT.format(role.name)
         response += "\n"
     response += "```"
-    response += "\nYour roles are highlighted with an arrow!"
+    response += "\n{0}, your roles are highlighted with an arrow!".format(author.mention)
 
     return response
+
+def load_bot_spam_channel_id():
+    """Load the Discord API authentication token."""
+    with open(BOT_SPAM_FILE, "r") as bot_spam_file:
+        return bot_spam_file.read().strip()

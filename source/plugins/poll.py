@@ -35,6 +35,8 @@ async def command_poll(client, message):
     if command_match is None:
         response = "You've got the poll syntax wrong. Try `!help`."
         await message.channel.send(response)
+        #  Add delete uncomment
+        # await message.delete()
 
         return
 
@@ -45,7 +47,8 @@ async def command_poll(client, message):
             + "I can't remember things for that long!"
         )
         await message.channel.send(response)
-
+        #  Add delete uncomment
+        # await message.delete()
         return
 
     # Split choices by the delimiter and show the help message if
@@ -54,12 +57,15 @@ async def command_poll(client, message):
     if len(choices) > 9:
         response = "You've got too many choices. Keep it below 10."
         await message.channel.send(response)
-
+        #  Add delete uncomment
+        # await message.delete()
         return
 
     prompt = command_match.group("prompt")
     response = get_response(prompt, choices)
     poll_message = await message.channel.send(response)
+    #  Remove delete comment
+    await message.delete()
 
     # Add reaction integers so members can vote in the poll.
     for integer in range(1, len(choices) + 1):

@@ -26,6 +26,8 @@ FORECAST_NUM = 3
 
 DEBUG = False       # prints api urls to console
 
+BOT_SPAM_FILE = "data/bot_spam_channel_id.txt"
+
 with open(API_KEY_FILE, "r") as f:
     API_KEY = f.read().strip()
 API_OPTS = "&units=imperial&apikey={}".format(API_KEY)
@@ -33,12 +35,16 @@ API_OPTS = "&units=imperial&apikey={}".format(API_KEY)
 
 async def command_weather(client, message):
     """Show the weather"""
+
+    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+
     command_match = re.match(COMMAND_FORMAT, message.content)
     
     # check syntax
     if command_match is None:
-        response = "Incorrect command syntax. Try `!help`."
-        await message.channel.send(response)
+        response = "{}, incorrect command syntax. Try `!help`.".format(message.author.mention)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
         return
     
     # get location from command
@@ -51,14 +57,16 @@ async def command_weather(client, message):
     # check for api error response
     if weather_data['cod'] != 200:
         err_message = weather_data['message'] if 'message' in weather_data else "unknown"
-        response = "**API Error: {}**".format(err_message)
-        await message.channel.send(response)
+        response = "{} **API Error: {}**".format(message.author.mention, err_message)
+        await message.delete()
+        await BOT_SPAM_CHANNEL.send(response)
         return
     
     forecast_data = await fetch_weather("forecast", location)
     embed = generate_embed(weather_data, forecast_data)
 
-    await message.channel.send("", embed=embed)
+    await BOT_SPAM_CHANNEL.send("{}\n".format(message.author.mention), embed=embed)
+    await message.delete()
     
 
 async def fetch_weather(type, location):
@@ -353,3 +361,7 @@ def roundtoint(x):
     """Rounds number to nearest integer"""
     return int(round(x))
     
+def load_bot_spam_channel_id():
+    """Load the Discord API authentication token."""
+    with open(BOT_SPAM_FILE, "r") as bot_spam_file:
+        return bot_spam_file.read().strip()

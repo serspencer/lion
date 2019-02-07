@@ -18,3 +18,4 @@ async def command_user_count(client, message):
 
     response = RESPONSE_FORMAT.format(server.member_count, active_members)
     await message.channel.send(response)
+    await message.delete()
