@@ -14,6 +14,9 @@ from plugins import (
     roles,
     sponge,
     weather,
+    register,
+    magicball,
+    aerospace,
     help_menu,
     user_count,
     garage_status,
@@ -37,7 +40,12 @@ COMMANDS = {
     roles.REMOVE_COMMAND : roles.command_removeroles,
     user_count.COMMAND : user_count.command_user_count,
     garage_status.COMMAND : garage_status.command_garage_status,
+    register.LIST_COMMAND : register.command_list,
+    register.REGISTER_COMMAND : register.command_register,
+    register.UNREGISTER_COMMAND : register.command_unregister,
+    magicball.COMMAND : magicball.command_magicball,
 }
 
 INLINES = {
+    aerospace.INLINE : aerospace.inline_aerospace
 }

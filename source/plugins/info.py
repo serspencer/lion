@@ -20,19 +20,20 @@ async def command_info(client, message):
     embedded_message.add_field(
         name="Contributors",        
         value="\n".join((
+            "Joey",
             "Charles",
             "Sam Shannon",
             "Evan Rupert",
             "Hayden Inghem",
             "Caleb Shepard",
-            "Joey the Corgi",
+            "Matthew Bautista",
         )),
         inline=False
     )
     
     embedded_message.add_field(
         name="Version",
-        value="1.2.2",
+        value="1.3.1",
         inline=False
     )
 
@@ -41,7 +42,7 @@ async def command_info(client, message):
         value=(
             "Written in Python. Relies heavily on the *discord* package "
             + "written by Rapptz. Source code and documentation for this "
-            + "package can be found at https://github.com/Rapptz/discord.py."
+            + "package can be found at https://github.com/Rapptz/discord.py/tree/rewrite."
         ),
         inline=False
     )
@@ -52,4 +53,4 @@ async def command_info(client, message):
         inline=False
     )
     
-    await client.send_message(message.channel, response, embed=embedded_message)
+    await message.channel.send(response, embed=embedded_message)

@@ -12,7 +12,7 @@ import discord
 from plugins import COMMANDS, INLINES, FILTERED_CHANNELS
 
 TOKEN_FILE = "data/discord_token.txt"
-COMMAND_PATTERN = r"^!(?P<command>[a-zA-Z]+)"
+COMMAND_PATTERN = r"^!(?P<command>[a-zA-Z0-9]+)"
 
 # Create a Discord client to interface with Discord servers.
 client = discord.Client()
@@ -39,9 +39,11 @@ async def on_message(message):
 
             return
 
-    command_match = re.match(COMMAND_PATTERN, message.content)
+    command_match = re.match(COMMAND_PATTERN, message.content, re.IGNORECASE)
     if command_match is not None:
         command = command_match.group("command")
+        message.content = message.content.replace(command, command.lower(), 1)
+        command = command.lower()
 
         # If the command is supported, execute its function. Else call
         # the "help" function.
@@ -51,10 +53,20 @@ async def on_message(message):
             await COMMANDS["help"](client, message)
 
 
+@client.event
+async def on_member_join(member):
+    # change this to a more detailed message
+    # with instructions on how to register for classes
+
+    # uncomment line to enable
+    #await member.send("Welcome to the CS discord!")
+    pass
+
+
 def load_token():
     """Load the Discord API authentication token."""
     with open(TOKEN_FILE, "r") as token_file:
-        return token_file.read()[:-1]
+        return token_file.read().strip()
 
 
 def handle_signals(signal_number, stack_frame):

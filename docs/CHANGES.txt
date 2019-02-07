@@ -1,5 +1,17 @@
 CHANGE LOG
 
+v1.3.1
+    - Added ability to register for all professors of a class
+    - Greatly improved speed of !register all
+    - Condensed response for !register all
+
+v1.3.0
+    - Added register plugin.
+    - Added magic 8-ball plugin.
+    - Commands are now case-insensitive.
+    - Polls choices no longer require spaces after commas.
+    - Updated discord.py dependency to 1.0 rewrite version.
+
 v1.2.2
     - Fixed issue with forecast times being wrong in weather plugin.
 

@@ -60,6 +60,12 @@ async def command_help_menu(client, message):
     )
 
     embedded_message.add_field(
+        name="!8ball message",
+        value="Get your questions answered by an object of irrelevance.",
+        inline=False
+    )
+
+    embedded_message.add_field(
         name="!sponge message",
         value="Create a spicy, sarcastic meme.",
         inline=False
@@ -77,4 +83,22 @@ async def command_help_menu(client, message):
         inline=False
     )
 
-    await client.send_message(message.channel, response, embed=embedded_message)
+    embedded_message.add_field(
+        name="!listclasses",
+        value="List all class channels.",
+        inline=False
+    )
+
+    embedded_message.add_field(
+        name="!register [all|classes...]",
+        value="Gain access to class channels.",
+        inline=False
+    )
+
+    embedded_message.add_field(
+        name="!unregister [all|classes...]",
+        value="Remove access to class channels.",
+        inline=False
+    )
+
+    await message.channel.send(response, embed=embedded_message)

@@ -7,8 +7,12 @@ Existing Functions:
 - User count
 - Auto roles
 - Post filters
+- Class registrar
 - Weather checker
 - UCF parking status
 - Dog picture picker
 - Text egging machine
+- Magic 8-ball fortune teller
 - Spongebob meme generator
+
+[Development Guide](https://github.com/tgsachse/lion/blob/master/docs/GETTING_STARTED.md)
