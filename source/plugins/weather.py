@@ -36,7 +36,7 @@ API_OPTS = "&units=imperial&apikey={}".format(API_KEY)
 async def command_weather(client, message):
     """Show the weather"""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     command_match = re.match(COMMAND_FORMAT, message.content)
     

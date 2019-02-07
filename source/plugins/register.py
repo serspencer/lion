@@ -38,7 +38,7 @@ class Class:
 async def command_list(client, message):
     """List the available classes"""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
     
     response = "**All classes:**\n```\n"
 
@@ -58,7 +58,7 @@ async def command_list(client, message):
 async def command_register(client, message):
     """Give member access to requested class channels"""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     # check command syntax
     command_match = re.match(REGISTER_COMMAND_FORMAT, message.content)
@@ -97,7 +97,7 @@ async def command_register(client, message):
 async def command_unregister(client, message):
     """Remove access to requested class channels"""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
     
     # check command syntax
     command_match = re.match(UNREGISTER_COMMAND_FORMAT, message.content)
@@ -130,7 +130,7 @@ async def command_unregister(client, message):
 async def get_classes_from_message(client, message):
     """Get classes user referenced in their message"""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     possible_classes = await get_classes(message.guild)
     req_class_names = message.content.split()[1:]

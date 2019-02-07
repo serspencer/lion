@@ -20,7 +20,7 @@ BOT_SPAM_FILE = "data/bot_spam_channel_id.txt"
 async def command_addroles(client, message):
     """Give the member new roles."""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     roles = await get_roles(client, message, ADD_COMMAND, ADD_COMMAND_PATTERN)
     if roles is None:
@@ -41,7 +41,7 @@ async def command_addroles(client, message):
 async def command_removeroles(client, message):
     """Remove roles from the member."""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     roles = await get_roles(client, message, REMOVE_COMMAND, REMOVE_COMMAND_PATTERN)
     if roles is None:
@@ -62,7 +62,7 @@ async def command_removeroles(client, message):
 async def command_listroles(client, message):
     """List all roles available on the server."""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     response = get_response(get_server(client), message.author)
 
@@ -73,7 +73,7 @@ async def command_listroles(client, message):
 async def get_roles(client, message, command, command_pattern):
     """Get all available roles on the server."""
 
-    BOT_SPAM_CHANNEL = client.get_channel(load_bot_spam_channel_id())
+    BOT_SPAM_CHANNEL = client.get_channel(int(load_bot_spam_channel_id()))
 
     # First, confirm that the message matches the syntax.
     command_match = re.match(command_pattern, message.content)
